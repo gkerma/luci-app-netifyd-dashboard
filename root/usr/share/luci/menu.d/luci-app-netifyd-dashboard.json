@@ -1,0 +1,45 @@
+{
+	"admin/status/netifyd-dashboard": {
+		"title": "Netifyd Dashboard",
+		"order": 6,
+		"action": {
+			"type": "view",
+			"path": "netifyd-dashboard/overview"
+		},
+		"depends": {
+			"acl": [ "luci-app-netifyd-dashboard" ]
+		}
+	},
+	"admin/status/netifyd-dashboard/overview": {
+		"title": "Overview",
+		"order": 10,
+		"action": {
+			"type": "view",
+			"path": "netifyd-dashboard/overview"
+		}
+	},
+	"admin/status/netifyd-dashboard/flows": {
+		"title": "Flows",
+		"order": 20,
+		"action": {
+			"type": "view",
+			"path": "netifyd-dashboard/flows"
+		}
+	},
+	"admin/status/netifyd-dashboard/applications": {
+		"title": "Applications",
+		"order": 30,
+		"action": {
+			"type": "view",
+			"path": "netifyd-dashboard/applications"
+		}
+	},
+	"admin/status/netifyd-dashboard/devices": {
+		"title": "Devices",
+		"order": 40,
+		"action": {
+			"type": "view",
+			"path": "netifyd-dashboard/devices"
+		}
+	}
+}
