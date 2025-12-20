@@ -76,7 +76,7 @@ opkg install netifyd
 ```bash
 # Clone into OpenWrt build environment
 cd ~/openwrt/feeds/luci/applications/
-git clone https://github.com/YOUR_USERNAME/luci-app-netifyd-dashboard.git
+git clone https://github.com/gkerma/luci-app-netifyd-dashboard.git
 
 # Update feeds and install
 cd ~/openwrt

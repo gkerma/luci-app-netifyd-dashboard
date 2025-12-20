@@ -41,5 +41,21 @@
 			"type": "view",
 			"path": "netifyd-dashboard/devices"
 		}
+	},
+	"admin/status/netifyd-dashboard/talkers": {
+		"title": "Top Talkers",
+		"order": 50,
+		"action": {
+			"type": "view",
+			"path": "netifyd-dashboard/talkers"
+		}
+	},
+	"admin/status/netifyd-dashboard/risks": {
+		"title": "Risks",
+		"order": 60,
+		"action": {
+			"type": "view",
+			"path": "netifyd-dashboard/risks"
+		}
 	}
 }
