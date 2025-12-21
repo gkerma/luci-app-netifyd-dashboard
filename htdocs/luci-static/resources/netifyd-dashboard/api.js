@@ -3,25 +3,25 @@
 'require rpc';
 
 var callStatus = rpc.declare({
-	object: 'luci.netifyd',
+	object: 'netifyd-dashboard',
 	method: 'status',
 	expect: { }
 });
 
 var callFlows = rpc.declare({
-	object: 'luci.netifyd',
+	object: 'netifyd-dashboard',
 	method: 'flows',
 	expect: { flows: [] }
 });
 
 var callApplications = rpc.declare({
-	object: 'luci.netifyd',
+	object: 'netifyd-dashboard',
 	method: 'applications',
 	expect: { applications: [] }
 });
 
 var callHosts = rpc.declare({
-	object: 'luci.netifyd',
+	object: 'netifyd-dashboard',
 	method: 'hosts',
 	expect: { hosts: [] }
 });
