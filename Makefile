@@ -16,7 +16,7 @@ PKG_MAINTAINER:=Gandalf <contact@cybermind.fr>
 
 LUCI_TITLE:=LuCI Netifyd Dashboard
 LUCI_DESCRIPTION:=Network Intelligence dashboard with Deep Packet Inspection for OpenWrt
-LUCI_DEPENDS:=+luci-base +luci-lib-jsonc +rpcd +rpcd-mod-luci +netifyd
+LUCI_DEPENDS:=+luci-base +luci-app-secubox +luci-lib-jsonc +rpcd +rpcd-mod-luci +netifyd
 
 LUCI_PKGARCH:=all
 

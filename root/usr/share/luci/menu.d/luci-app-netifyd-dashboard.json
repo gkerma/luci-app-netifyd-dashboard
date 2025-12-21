@@ -1,61 +1,45 @@
 {
-	"admin/status/netifyd-dashboard": {
-		"title": "Netifyd Dashboard",
-		"order": 6,
+	"admin/secubox/security/netifyd": {
+		"title": "Netifyd",
+		"order": 20,
 		"action": {
-			"type": "view",
-			"path": "netifyd-dashboard/overview"
+			"type": "firstchild"
 		},
 		"depends": {
-			"acl": [ "luci-app-netifyd-dashboard" ]
+			"acl": ["luci-app-netifyd-dashboard"],
+			"uci": {"netifyd": true}
 		}
 	},
-	"admin/status/netifyd-dashboard/overview": {
+	"admin/secubox/security/netifyd/overview": {
 		"title": "Overview",
 		"order": 10,
 		"action": {
 			"type": "view",
-			"path": "netifyd-dashboard/overview"
+			"path": "netifyd/overview"
 		}
 	},
-	"admin/status/netifyd-dashboard/flows": {
-		"title": "Flows",
+	"admin/secubox/security/netifyd/applications": {
+		"title": "Applications",
 		"order": 20,
 		"action": {
 			"type": "view",
-			"path": "netifyd-dashboard/flows"
+			"path": "netifyd/applications"
 		}
 	},
-	"admin/status/netifyd-dashboard/applications": {
-		"title": "Applications",
+	"admin/secubox/security/netifyd/flows": {
+		"title": "Flows",
 		"order": 30,
 		"action": {
 			"type": "view",
-			"path": "netifyd-dashboard/applications"
+			"path": "netifyd/flows"
 		}
 	},
-	"admin/status/netifyd-dashboard/devices": {
-		"title": "Devices",
-		"order": 40,
+	"admin/secubox/security/netifyd/settings": {
+		"title": "Settings",
+		"order": 90,
 		"action": {
 			"type": "view",
-			"path": "netifyd-dashboard/devices"
-		}
-	},
-	"admin/status/netifyd-dashboard/talkers": {
-		"title": "Top Talkers",
-		"order": 50,
-		"action": {
-			"type": "view",
-			"path": "netifyd-dashboard/talkers"
-		}
-	},
-	"admin/status/netifyd-dashboard/risks": {
-		"title": "Risks",
-		"order": 60,
-		"action": {
-			"type": "view",
-			"path": "netifyd-dashboard/risks"
+			"path": "netifyd/settings"
 		}
 	}
 }
