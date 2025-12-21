@@ -1,0 +1,103 @@
+name: Build luci-app-netifyd-dashboard
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  PKG_NAME: luci-app-netifyd-dashboard
+  OPENWRT_VERSION: '23.05.5'
+
+jobs:
+  validate:
+    name: Validate Package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate structure
+        run: |
+          test -f Makefile
+          grep -q "PKG_NAME:=luci-app-netifyd-dashboard" Makefile
+          find . -name "*.json" -exec python3 -m json.tool {} \; > /dev/null
+
+  build:
+    name: Build ${{ matrix.arch }}
+    needs: validate
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            target: x86
+            subtarget: 64
+          - arch: aarch64_cortex-a53
+            target: mvebu
+            subtarget: cortexa53
+          - arch: aarch64_cortex-a72
+            target: mvebu
+            subtarget: cortexa72
+          - arch: arm_cortex-a9_vfpv3-d16
+            target: mvebu
+            subtarget: cortexa9
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup build environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libncurses5-dev gawk git \
+            gettext libssl-dev xsltproc wget unzip python3 python3-setuptools python3-dev
+
+      - name: Download OpenWrt SDK
+        run: |
+          SDK_BASE="https://downloads.openwrt.org/releases/${{ env.OPENWRT_VERSION }}/targets/${{ matrix.target }}/${{ matrix.subtarget }}"
+          SDK_FILE=$(curl -s "${SDK_BASE}/sha256sums" | grep "openwrt-sdk" | awk '{print $2}' | tr -d '*')
+          wget -q "${SDK_BASE}/${SDK_FILE}"
+          tar xf "${SDK_FILE}"
+          mv openwrt-sdk-* sdk
+
+      - name: Setup feeds and build
+        run: |
+          cd sdk
+          echo "src-git luci https://github.com/openwrt/luci.git;openwrt-23.05" >> feeds.conf.default
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+          cp -r ../. package/${{ env.PKG_NAME }}/
+          rm -rf package/${{ env.PKG_NAME }}/.git package/${{ env.PKG_NAME }}/sdk
+          make defconfig
+          make package/${{ env.PKG_NAME }}/compile V=s -j$(nproc) || \
+          make package/${{ env.PKG_NAME }}/compile V=s
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PKG_NAME }}-${{ matrix.arch }}
+          path: sdk/bin/**/*.ipk
+          retention-days: 30
+
+  release:
+    name: Create Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+          merge-multiple: true
+          
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: release-artifacts/**/*.ipk
+          generate_release_notes: true
