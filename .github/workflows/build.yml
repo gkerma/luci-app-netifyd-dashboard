@@ -60,7 +60,6 @@ jobs:
           
           wget -q "${SDK_BASE}/sha256sums"
           SDK_FILE=$(grep -E "openwrt-sdk.*\.tar\.(xz|zst)" sha256sums | head -1 | awk '{print $NF}' | tr -d '*')
-          
           [ -z "$SDK_FILE" ] && { echo "SDK not found"; exit 1; }
           
           echo "Downloading $SDK_FILE..."
@@ -73,23 +72,23 @@ jobs:
             *) tar -xf "$SDK_FILE" ;;
           esac
           
-          # Use find instead of glob (more reliable)
           SDK_DIR=$(find . -maxdepth 1 -type d -name "openwrt-sdk-*" -print -quit)
           [ -z "$SDK_DIR" ] && { echo "SDK dir not found"; ls -la; exit 1; }
-          
           mv "$SDK_DIR" sdk
-          echo "SDK ready in ./sdk"
 
       - name: Setup feeds and build
         run: |
           cd sdk
-          echo "src-git luci https://github.com/openwrt/luci.git;openwrt-23.05" >> feeds.conf.default
+          
+          # Add luci feed only if not present (avoid duplicate error)
+          grep -q "^src-git luci" feeds.conf.default || \
+            echo "src-git luci https://github.com/openwrt/luci.git;openwrt-23.05" >> feeds.conf.default
+          
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
           mkdir -p package/${{ env.PKG_NAME }}
-          rsync -av --exclude='.git' --exclude='sdk' --exclude='*.tar.*' \
-            ../. package/${{ env.PKG_NAME }}/
+          rsync -av --exclude='.git' --exclude='sdk' --exclude='*.tar.*' ../. package/${{ env.PKG_NAME }}/
           
           make defconfig
           make package/${{ env.PKG_NAME }}/compile V=s -j$(nproc) || \
