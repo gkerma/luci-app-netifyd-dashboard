@@ -1,4 +1,4 @@
-name: Build OpenWrt Package
+name: Build luci-app-netifyd-dashboard
 
 on:
   push:
@@ -9,6 +9,7 @@ on:
   workflow_dispatch:
 
 env:
+  # MUST match PKG_NAME:= in Makefile exactly
   PKG_NAME: luci-app-netifyd-dashboard
   OPENWRT_VERSION: '23.05.5'
 
@@ -18,6 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
+      - name: Verify PKG_NAME matches Makefile
+        run: |
+          MAKEFILE_PKG=$(grep "^PKG_NAME:=" Makefile | cut -d= -f2)
+          if [ "$MAKEFILE_PKG" != "${{ env.PKG_NAME }}" ]; then
+            echo "❌ PKG_NAME mismatch: Makefile=$MAKEFILE_PKG, Workflow=${{ env.PKG_NAME }}"
+            exit 1
+          fi
+          echo "✅ PKG_NAME verified: $MAKEFILE_PKG"
+
       - name: Check structure
         run: |
           test -f Makefile
@@ -57,7 +68,6 @@ jobs:
       - name: Download and extract SDK
         run: |
           SDK_BASE="https://downloads.openwrt.org/releases/${{ env.OPENWRT_VERSION }}/targets/${{ matrix.target }}/${{ matrix.subtarget }}"
-          
           wget -q "${SDK_BASE}/sha256sums"
           SDK_FILE=$(grep -E "openwrt-sdk.*\.tar\.(xz|zst)" sha256sums | head -1 | awk '{print $NF}' | tr -d '*')
           [ -z "$SDK_FILE" ] && { echo "SDK not found"; exit 1; }
@@ -65,7 +75,6 @@ jobs:
           echo "Downloading $SDK_FILE..."
           wget -q "${SDK_BASE}/${SDK_FILE}"
           
-          echo "Extracting..."
           case "$SDK_FILE" in
             *.tar.xz) tar -xJf "$SDK_FILE" ;;
             *.tar.zst) tar --zstd -xf "$SDK_FILE" ;;
@@ -73,26 +82,24 @@ jobs:
           esac
           
           SDK_DIR=$(find . -maxdepth 1 -type d -name "openwrt-sdk-*" -print -quit)
-          [ -z "$SDK_DIR" ] && { echo "SDK dir not found"; ls -la; exit 1; }
+          [ -z "$SDK_DIR" ] && { echo "SDK dir not found"; exit 1; }
           mv "$SDK_DIR" sdk
 
       - name: Setup feeds and build
         run: |
           cd sdk
-          
-          # Add luci feed only if not present (avoid duplicate error)
           grep -q "^src-git luci" feeds.conf.default || \
             echo "src-git luci https://github.com/openwrt/luci.git;openwrt-23.05" >> feeds.conf.default
           
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           
-          mkdir -p package/${{ env.PKG_NAME }}
-          rsync -av --exclude='.git' --exclude='sdk' --exclude='*.tar.*' ../. package/${{ env.PKG_NAME }}/
+          mkdir -p "package/${{ env.PKG_NAME }}"
+          rsync -av --exclude='.git' --exclude='sdk' --exclude='*.tar.*' ../. "package/${{ env.PKG_NAME }}/"
           
           make defconfig
-          make package/${{ env.PKG_NAME }}/compile V=s -j$(nproc) || \
-            make package/${{ env.PKG_NAME }}/compile V=s -j1
+          make "package/${{ env.PKG_NAME }}/compile" V=s -j$(nproc) || \
+            make "package/${{ env.PKG_NAME }}/compile" V=s -j1
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

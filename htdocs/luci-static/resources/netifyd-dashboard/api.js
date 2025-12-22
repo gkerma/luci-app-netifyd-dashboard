@@ -2,28 +2,46 @@
 'require baseclass';
 'require rpc';
 
+/**
+ * Netifyd Dashboard API
+ * Package: luci-app-netifyd-dashboard
+ * RPCD object: luci.netifyd-dashboard
+ */
+
 var callStatus = rpc.declare({
-	object: 'netifyd-dashboard',
+	object: 'luci.netifyd-dashboard',
 	method: 'status',
 	expect: { }
 });
 
 var callFlows = rpc.declare({
-	object: 'netifyd-dashboard',
+	object: 'luci.netifyd-dashboard',
 	method: 'flows',
 	expect: { flows: [] }
 });
 
 var callApplications = rpc.declare({
-	object: 'netifyd-dashboard',
+	object: 'luci.netifyd-dashboard',
 	method: 'applications',
 	expect: { applications: [] }
 });
 
 var callHosts = rpc.declare({
-	object: 'netifyd-dashboard',
+	object: 'luci.netifyd-dashboard',
 	method: 'hosts',
 	expect: { hosts: [] }
+});
+
+var callProtocols = rpc.declare({
+	object: 'luci.netifyd-dashboard',
+	method: 'protocols',
+	expect: { protocols: [] }
+});
+
+var callStats = rpc.declare({
+	object: 'luci.netifyd-dashboard',
+	method: 'stats',
+	expect: { }
 });
 
 function formatBytes(bytes) {
@@ -39,5 +57,7 @@ return baseclass.extend({
 	getFlows: callFlows,
 	getApplications: callApplications,
 	getHosts: callHosts,
+	getProtocols: callProtocols,
+	getStats: callStats,
 	formatBytes: formatBytes
 });
